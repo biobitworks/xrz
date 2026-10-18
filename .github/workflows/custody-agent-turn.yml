@@ -19,10 +19,10 @@ jobs:
           persist-credentials: false
       - name: Python version
         run: python3 --version
-      - name: Run standard library unit tests
+      - name: Install pinned schema and notebook validators
+        run: python3 -m pip install --disable-pip-version-check 'jsonschema==4.23.0' 'nbformat==5.10.4' 'nbclient==0.10.2' 'ipykernel==6.29.5'
+      - name: Run full schema and Merkle unit tests
         run: PYTHONPATH=. python3 -m unittest discover -s tests -v
-      - name: Install pinned notebook runner
-        run: python3 -m pip install --disable-pip-version-check 'nbformat==5.10.4' 'nbclient==0.10.2' 'ipykernel==6.29.5'
       - name: Execute full reproducible notebook in clean kernel
         run: |
           python3 - <<'PY'
