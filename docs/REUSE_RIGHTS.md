@@ -9,7 +9,7 @@
 | [HydraDG](https://github.com/biobitworks/hydradg) | FCO/FCG state/custody model | inspect license, exact commit |
 | [Vitaology](https://github.com/biobitworks/vitaology) | Vita DAISY comparisons | inspect rights/data constraints |
 | [Cloudmer](https://github.com/biobitworks/cloudmer) | VCC perturbation experiment contracts | do not carry restricted VCC datasets across events |
-| [Antigence](https://github.com/biobitworks/antigence) | fail-closed model checker and red-team controls | independent test needed |
+| [Antigence Clean Room](https://github.com/biobitworks/antigence) | Separate, private security/evidence research project; **NOT XRZ implementation** | Out of scope: do not import evidence, private code, roots, fixtures, tests or approvals into XRZ; see `governance/PROJECT_BOUNDARY_XRZ.md` |
 | [XRZ upstream](https://github.com/gj-labs/xrz) | Zack's project coordination | upstream license/code permissions unverified, no automatic code copy |
 | [BioKEA BugPicker arm](https://github.com/BioKEA/BugPicker-arm-demo) | lab robotics procedural failure/retry | GPL-3.0 observed; conceptual reference only unless license compatibility reviewed |
 | [BioKEA prompt-to-print](https://github.com/BioKEA/prompt-to-print) | testable geometry transformations | MIT reported in README; inspect license before reuse |
