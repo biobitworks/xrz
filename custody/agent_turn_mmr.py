@@ -2,6 +2,9 @@
 from __future__ import annotations
 import hashlib
 import json
+import re
+from pathlib import Path
+from jsonschema import Draft202012Validator, ValidationError
 import unicodedata
 from typing import Any
 
@@ -9,6 +12,20 @@ LEAF_DOMAIN = b"XRZ/MMR/v1/leaf\x00"
 NODE_DOMAIN = b"XRZ/MMR/v1/node\x00"
 ROOT_DOMAIN = b"XRZ/MMR/v1/root\x00"
 _MAX_INT = 2**53 - 1
+_SCHEMA_PATH = Path(__file__).resolve().parents[1] / "contracts" / "AGENT_TURN.schema.json"
+_SCHEMA = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
+Draft202012Validator.check_schema(_SCHEMA)
+_VALIDATOR = Draft202012Validator(_SCHEMA)
+
+def validate_event(event: dict) -> None:
+    if not isinstance(event, dict):
+        raise ValueError("event object required")
+    try:
+        _VALIDATOR.validate(event)
+    except ValidationError as exc:
+        raise ValueError("invalid agent-turn schema: " + exc.message) from exc
+    _check(event)  # integer bounds and canonical NFC checked separately
+
 
 def _check(value: Any) -> None:
     if value is None or isinstance(value, bool):
@@ -49,7 +66,7 @@ def _node(h: int, left: str, right: str) -> str:
 def _encode_parent(parent_checkpoint: str | None) -> bytes:
     if parent_checkpoint is None:
         return b"\x00"
-    if not isinstance(parent_checkpoint, str) or len(parent_checkpoint) != 64:
+    if not isinstance(parent_checkpoint, str) or re.fullmatch(r"[0-9a-f]{64}", parent_checkpoint) is None:
         raise ValueError("parent checkpoint must be 64 hex chars")
     return b"\x01" + bytes.fromhex(parent_checkpoint)
 
@@ -64,14 +81,7 @@ def construct_turn_checkpoint(events: list[dict], parent_checkpoint: str | None 
         raise ValueError("empty checkpoint cannot be committed")
     seen = set()
     for i, event in enumerate(events):
-        if not isinstance(event, dict):
-            raise ValueError("event object required")
-        for field in ("schema", "event_id", "actor", "turn_id", "repo", "task_ref",
-                      "sequence", "status", "input_occurrences", "output_occurrences", "evidence_refs"):
-            if field not in event:
-                raise ValueError("missing " + field)
-        if event["schema"] != "xrz.agent_turn.v1":
-            raise ValueError("unexpected schema")
+        validate_event(event)
         if event["sequence"] != i:
             raise ValueError("unordered sequence")
         if event["event_id"] in seen:
@@ -101,10 +111,22 @@ def construct_turn_checkpoint(events: list[dict], parent_checkpoint: str | None 
 def reference_verify(events: list[dict], receipt: dict) -> bool:
     """Second, recursively constructed verification path on one local host."""
     try:
+        if not events:
+            return False
+        if receipt["schema"] != "xrz.agent_turn_mmr_checkpoint.v1":
+            return False
+        if receipt["signature_state"] != "NOT_SIGNED":
+            return False
+        if receipt["state"] != "COMPUTED_NOT_EXTERNAL_ATTESTED":
+            return False
+        if receipt["verification"] != "NOT_TESTED":
+            return False
         if receipt["algorithm"] != "xrz-domain-separated-mmr-v1" or receipt["event_count"] != len(events):
             return False
         if receipt["canonicalization"] != "xrz-json-v1":
             return False
+        for event in events:
+            validate_event(event)
         if [e["sequence"] for e in events] != list(range(len(events))):
             return False
         ids = [e["event_id"] for e in events]
@@ -135,7 +157,7 @@ def reference_verify(events: list[dict], receipt: dict) -> bool:
         if parent is None:
             packed = b"\x00"
         else:
-            if not isinstance(parent, str) or len(parent) != 64:
+            if not isinstance(parent, str) or re.fullmatch(r"[0-9a-f]{64}", parent) is None:
                 return False
             packed = b"\x01" + bytes.fromhex(parent)
         packed += len(hashes).to_bytes(8, "big") + len(peaks).to_bytes(2, "big")
