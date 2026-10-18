@@ -12,7 +12,7 @@ LEAF_DOMAIN = b"XRZ/MMR/v1/leaf\x00"
 NODE_DOMAIN = b"XRZ/MMR/v1/node\x00"
 ROOT_DOMAIN = b"XRZ/MMR/v1/root\x00"
 _MAX_INT = 2**53 - 1
-_SCHEMA_PATH = Path(__file__).resolve().parents[1] / "contracts" / "AGENT_TURN.schema.json"
+_SCHEMA_PATH = Path(__file__).resolve().parents[1] / "contracts" / "AGENT_TURN.v2.schema.json"
 _SCHEMA = json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
 Draft202012Validator.check_schema(_SCHEMA)
 _VALIDATOR = Draft202012Validator(_SCHEMA)
