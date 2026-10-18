@@ -1,6 +1,6 @@
 # XRZ Copilot instructions — verifiable research and custody
 
-XRZ targets Samsung S25 Ultra/S Pen, Samsung XR, reference protein structures, optional on-device model evaluation and versioned **mock** lab procedures. Read \`README_HANDOFF.md\`, \`docs/MVP_ARCHITECTURE.md\`, \`contracts/FCO_FCG_v1.json\`, \`docs/CITATION_ADMISSION_POLICY.md\`, and \`docs/COPILOT_CHAIN_OF_CUSTODY.md\`.
+XRZ targets Samsung S25 Ultra/S Pen, Samsung XR, reference protein structures, optional on-device model evaluation and versioned **mock** lab procedures. Read \`README_HANDOFF.md\`, \`docs/MVP_ARCHITECTURE.md\`, \`contracts/FCO_FCG_v2.json\`, \`docs/CITATION_ADMISSION_POLICY.md\`, and \`docs/COPILOT_CHAIN_OF_CUSTODY.md\`.
 
 - You are an **untrusted execution/review lane** under human governance. Never claim your own output is independently verified, and never merge or approve your own safety-critical PR.
 - Source/evidence → independently addressable atom/FCO → declared typed FCG edge → derived evidence → tested claim → permissioned artifact. Separate **content identity** from context/occurrence identity. Preserve predecessor/corrections and failures.
