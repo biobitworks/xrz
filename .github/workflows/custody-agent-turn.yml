@@ -36,3 +36,5 @@ jobs:
           assert all(cell.get('execution_count') is not None for cell in executed.cells if cell.cell_type == 'code')
           print('PASS: local synthetic notebook; not actual Copilot or external attestation')
           PY
+      - name: Compute actual Github reviewer-comment FCO and ordered L1 MMR
+        run: PYTHONPATH=. python3 scripts/checkpoint_real_reviews.py
