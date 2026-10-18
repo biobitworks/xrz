@@ -16,3 +16,7 @@
 **Safety/privacy:** No restricted SPC, VCC, AI drug discovery, participant or lab datasets should enter this public repository without source-specific authorization. No video of actual lab participants without approval and consent.
 
 Every PR must attach a reproducible Jupyter notebook, exact source and derived hashes, tested transformations, model weights/runtime/backend versions, an explicit result status, failed/negative test receipts and NEXT_ACTION.
+
+## Distinct-project boundary
+
+**XRZ is not Antigence Clean Room.** Do not merge the withdrawn [scope-mismatched PR #2](https://github.com/biobitworks/xrz/pull/2), import Antigence private evidence, reuse Antigence clean-room roots, or infer its approvals. Consult [XRZ project separation](governance/PROJECT_BOUNDARY_XRZ.md). The active upstream XRZ handoff is PR #1 only.
