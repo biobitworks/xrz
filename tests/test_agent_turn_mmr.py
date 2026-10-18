@@ -190,5 +190,29 @@ class TestAgentTurnMMR(unittest.TestCase):
         self.assertFalse(reference_verify(events, wrong))
 
 
+
+    def test_sha256_instruction_digest_newline_rejected(self):
+        original = fixture(1)
+        original[0]["instruction_blob_sha256"] = "a" * 64
+        receipt = construct_turn_checkpoint(original)
+        self.assertTrue(reference_verify(original, receipt))
+        tampered = fixture(1)
+        tampered[0]["instruction_blob_sha256"] = "a" * 64 + "\n"
+        with self.assertRaises(ValueError):
+            construct_turn_checkpoint(tampered)
+        self.assertFalse(reference_verify(tampered, receipt))
+
+    def test_fcg_agent_turn_contract_fields_align_with_schema(self):
+        import json
+        from pathlib import Path
+        root = Path(__file__).resolve().parents[1]
+        agent = json.loads((root / "contracts/AGENT_TURN.v2.schema.json").read_text())
+        graph = json.loads((root / "contracts/FCO_FCG_v2.json").read_text())
+        self.assertEqual(set(graph["entities"]["AgentTurn"]), set(agent["properties"]))
+        for edge in ("CITES", "BUILDS_ON", "USES_DATA_FROM",
+                     "REPRODUCES", "COMPARES_WITH", "CORRECTS", "CONTAINS_RECEIPT"):
+            self.assertIn(edge, graph["edge_types"])
+
+
 if __name__ == "__main__":
     unittest.main()
