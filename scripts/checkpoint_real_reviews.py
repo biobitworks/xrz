@@ -50,7 +50,9 @@ def run() -> dict:
             "task_ref": "https://github.com/biobitworks/xrz/pull/1",
             "sequence": i,
             "status": "OBSERVED",
-            "input_occurrences": ["repo:biobitworks/xrz@e20e03f5d4a3044b856757b2acd25a509ad09d6f"],
+            "input_occurrences": (["repo:biobitworks/xrz@e20e03f5d4a3044b856757b2acd25a509ad09d6f"]
+                                  if actor_login == "chatgpt-codex-connector[bot]"
+                                  else ["github-pr-1-review-input-commit:UNKNOWN"]),
             "output_occurrences": ["github-pr-comment:" + str(comment["id"])],
             "evidence_refs": ["sha256:" + body_sha, comment["url"]],
             "tool_execution_receipt_ref": comment["url"],
