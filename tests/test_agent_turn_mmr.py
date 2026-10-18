@@ -74,5 +74,20 @@ class TestAgentTurnMMR(unittest.TestCase):
         r["root"] = "0"*64
         self.assertFalse(reference_verify(e, r))
 
+    def test_known_synthetic_copilot_vector(self):
+        e = []
+        for i, kind in enumerate(["synthetic_instructions_read","synthetic_code_proposal","synthetic_test_failure"]):
+            e.append({"schema":"xrz.agent_turn.v1","event_id":"SYNTHETIC-"+str(i),
+                "actor":"SYNTHETIC_COPILOT","turn_id":"synthetic-turn-001",
+                "repo":"biobitworks/xrz","task_ref":"synthetic-local-fixture",
+                "sequence":i,"status":"SYNTHETIC",
+                "input_occurrences":["source-occurrence-0"],
+                "output_occurrences":["fixture-occurrence-"+str(i)],
+                "evidence_refs":["synthetic:"+kind]})
+        r = construct_turn_checkpoint(e, parent_checkpoint="ab"*32)
+        self.assertEqual(r["root"], "0fc4c6332e1c1831036193a6d66b235e7b2fc5893908dd49c880a32fb234166c")
+        self.assertEqual([p["height"] for p in r["peaks"]], [1,0])
+        self.assertTrue(reference_verify(e, r))
+
 if __name__ == "__main__":
     unittest.main()
