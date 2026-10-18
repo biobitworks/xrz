@@ -106,5 +106,89 @@ class TestAgentTurnMMR(unittest.TestCase):
             construct_turn_checkpoint(e)
 
 
+
+    def test_receipt_bool_count_rejected(self):
+        events = fixture(1)
+        r = construct_turn_checkpoint(events)
+        self.assertFalse(reference_verify(events, dict(r, event_count=True)))
+
+    def test_receipt_bool_peak_height_rejected(self):
+        for n in (1, 2):
+            events = fixture(n)
+            r = construct_turn_checkpoint(events)
+            bad = dict(r, peaks=[dict(p) for p in r["peaks"]])
+            bad["peaks"][0]["height"] = bool(n - 1)
+            self.assertFalse(reference_verify(events, bad))
+
+    def test_unsupported_receipt_status_rejected(self):
+        events = fixture()
+        r = construct_turn_checkpoint(events)
+        for field, value in (("signature_state", "SIGNED_VERIFIED"),
+                             ("state", "MMR_COMMITTED"),
+                             ("verification", "PASS")):
+            self.assertFalse(reference_verify(events, dict(r, **{field:value})), field)
+
+    def test_invalid_agent_schema_on_constructor_and_verifier(self):
+        for field, value in (("actor", None), ("status", "INVALID"),
+                             ("input_occurrences", "not-a-list"),
+                             ("sequence", False),
+                             ("event_kind", "INVALID")):
+            events = fixture(1)
+            receipt = construct_turn_checkpoint(events)
+            events[0][field] = value
+            with self.assertRaises(ValueError):
+                construct_turn_checkpoint(events)
+            self.assertFalse(reference_verify(events, receipt), field)
+        for mode in ("missing", "extra"):
+            events = fixture(1)
+            receipt = construct_turn_checkpoint(events)
+            if mode == "missing":
+                del events[0]["event_id"]
+            else:
+                events[0]["unknown_field"] = "not allowed"
+            with self.assertRaises(ValueError):
+                construct_turn_checkpoint(events)
+            self.assertFalse(reference_verify(events, receipt), mode)
+
+    def test_forged_empty_receipt_rejected(self):
+        events = fixture(1)
+        r = construct_turn_checkpoint(events)
+        r["event_count"] = 0
+        r["ordered_leaf_hashes"] = []
+        r["peaks"] = []
+        self.assertFalse(reference_verify([], r))
+
+    def test_whitespace_parent_on_both_paths(self):
+        events = fixture(1)
+        for malformed in (" " * 64, "Z" * 64, "ab" * 31, "ab " * 21 + "x"):
+            with self.assertRaises(ValueError):
+                construct_turn_checkpoint(events, malformed)
+        r = construct_turn_checkpoint(events, "ab" * 32)
+        self.assertFalse(reference_verify(events, dict(r, parent_checkpoint=" " * 64)))
+
+    def test_correctly_sequenced_append_invalidates_prior_receipt(self):
+        events = fixture(1)
+        prior = construct_turn_checkpoint(events)
+        extra = fixture(1)[0].copy()
+        extra["event_id"] = "successor"
+        extra["sequence"] = 1
+        self.assertFalse(reference_verify(events + [extra], prior))
+
+    def test_receipt_extra_field_rejected(self):
+        events = fixture()
+        r = construct_turn_checkpoint(events)
+        r["unreviewed_attestation"] = True
+        self.assertFalse(reference_verify(events, r))
+
+    def test_receipt_peak_size_and_order_rejected(self):
+        events = fixture(3)
+        r = construct_turn_checkpoint(events)
+        reordered = dict(r, peaks=list(reversed(r["peaks"])))
+        self.assertFalse(reference_verify(events, reordered))
+        wrong = dict(r, peaks=[dict(p) for p in r["peaks"]])
+        wrong["peaks"][0]["height"] = 3
+        self.assertFalse(reference_verify(events, wrong))
+
+
 if __name__ == "__main__":
     unittest.main()
