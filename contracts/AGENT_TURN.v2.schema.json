@@ -79,7 +79,9 @@
         "string",
         "null"
       ],
-      "pattern": "^[a-f0-9]{64}$"
+      "pattern": "^[a-f0-9]{64}$",
+      "minLength": 64,
+      "maxLength": 64
     },
     "model_id": {
       "type": [
