@@ -19,3 +19,7 @@ Own content-vs-occurrence identities, declared FCG edges, deterministic cross-ru
 
 ## Orchestrator / release reviewer
 Maintain one issue and PR per owner, least-privilege access, source/license admission, reviewer approvals and milestone gates. Link every artifact to inputs, outputs, model/license and hardware receipts. Reconcile previous work by explicit SHA/branch, not chat narrative. Prohibit public disclosure of confidential SPC/AI drug discovery/VCC datasets or private media. Track PROPOSED/IMPLEMENTED/EXECUTED/OBSERVED/FAILED/NOT_TESTED and NEXT_ACTION, and produce a judge-safe claim ceiling.
+
+## Project separation
+
+XRZ team tasks are device/protein/visualization/mock-SOP/custody tasks **only**. Antigence Clean Room is a separate private project with existing FCO/FCG predecessor and successor evidence. Do not open Antigence clean-room work as XRZ tasks or merge the withdrawn XRZ PR #2. Observe `governance/PROJECT_BOUNDARY_XRZ.md` for explicit review gates.
