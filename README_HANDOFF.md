@@ -5,7 +5,7 @@
 ## Read in order
 1. [Architecture and acceptance](docs/MVP_ARCHITECTURE.md)
 2. [Team setup and copy/paste prompts](docs/TEAM_PROMPTS.md)
-3. [Canonical data and transformation contract](contracts/FCO_FCG_v1.json)
+3. [Canonical data and transformation contract](contracts/FCO_FCG_v2.json)
 4. [Prior repos, references, licensing](docs/REUSE_RIGHTS.md)
 5. [Unit and hardware acceptance matrix](docs/TEST_MATRIX.md)
 
