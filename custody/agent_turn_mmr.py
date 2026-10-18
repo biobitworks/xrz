@@ -108,11 +108,58 @@ def construct_turn_checkpoint(events: list[dict], parent_checkpoint: str | None 
             "state": "COMPUTED_NOT_EXTERNAL_ATTESTED",
             "verification": "NOT_TESTED"}
 
+def validate_receipt(receipt: dict) -> None:
+    """Fail-closed validation of a computed, unsigned local MMR receipt."""
+    required = {"schema", "algorithm", "canonicalization", "event_count",
+                "ordered_leaf_hashes", "peaks", "root", "parent_checkpoint",
+                "signature_state", "state", "verification"}
+    if not isinstance(receipt, dict) or set(receipt) != required:
+        raise ValueError("invalid or extra receipt fields")
+    expected = {"schema": "xrz.agent_turn_mmr_checkpoint.v1",
+                "algorithm": "xrz-domain-separated-mmr-v1",
+                "canonicalization": "xrz-json-v1",
+                "signature_state": "NOT_SIGNED",
+                "state": "COMPUTED_NOT_EXTERNAL_ATTESTED",
+                "verification": "NOT_TESTED"}
+    for field, value in expected.items():
+        if type(receipt[field]) is not str or receipt[field] != value:
+            raise ValueError("unverified receipt claim: " + field)
+    count = receipt["event_count"]
+    if type(count) is not int or count <= 0 or count > _MAX_INT:
+        raise ValueError("invalid event count")
+    def digest(value):
+        return type(value) is str and re.fullmatch(r"[0-9a-f]{64}", value) is not None
+    if not digest(receipt["root"]):
+        raise ValueError("invalid MMR root")
+    parent = receipt["parent_checkpoint"]
+    if parent is not None and not digest(parent):
+        raise ValueError("invalid predecessor digest")
+    leaves = receipt["ordered_leaf_hashes"]
+    if type(leaves) is not list or len(leaves) != count or not all(digest(h) for h in leaves):
+        raise ValueError("invalid ordered leaves")
+    peaks = receipt["peaks"]
+    if type(peaks) is not list or not peaks:
+        raise ValueError("missing MMR peaks")
+    heights = []
+    for peak in peaks:
+        if type(peak) is not dict or set(peak) != {"height", "hash"}:
+            raise ValueError("invalid MMR peak shape")
+        height = peak["height"]
+        if type(height) is not int or not 0 <= height <= 53 or not digest(peak["hash"]):
+            raise ValueError("invalid MMR peak")
+        heights.append(height)
+    if heights != sorted(heights, reverse=True) or len(set(heights)) != len(heights):
+        raise ValueError("invalid mountain peak order")
+    if sum(1 << h for h in heights) != count:
+        raise ValueError("MMR peaks disagree with event count")
+
+
 def reference_verify(events: list[dict], receipt: dict) -> bool:
     """Second, recursively constructed verification path on one local host."""
     try:
         if not events:
             return False
+        validate_receipt(receipt)
         if receipt["schema"] != "xrz.agent_turn_mmr_checkpoint.v1":
             return False
         if receipt["signature_state"] != "NOT_SIGNED":
