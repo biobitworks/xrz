@@ -61,6 +61,14 @@ def run() -> dict:
     receipt = construct_turn_checkpoint(events, parent_checkpoint=None)
     if not reference_verify(events, receipt):
         raise AssertionError("independent construction paths mismatch")
+    expected_receipt_path = source.parent / "github_agent_review_l1_mmr_receipt_v1.json"
+    expected = json.loads(expected_receipt_path.read_text(encoding="utf-8"))
+    if hashlib.sha256(raw_bytes).hexdigest() != expected["source_snapshot_sha256"]:
+        raise AssertionError("source bytes differ from frozen review receipt")
+    if receipt["root"] != expected["mmr"]["root"] or receipt["peaks"] != expected["mmr"]["peaks"]:
+        raise AssertionError("L1 replay does not reproduce source-bound frozen peak/root")
+    if receipt["ordered_leaf_hashes"] != expected["mmr"]["ordered_leaf_hashes"]:
+        raise AssertionError("L1 ordered leaf replay diverged")
     tampered = json.loads(json.dumps(events))
     tampered[0]["evidence_refs"][0] = "sha256:" + "0" * 64
     if reference_verify(tampered, receipt):
