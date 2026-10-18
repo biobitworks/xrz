@@ -24,3 +24,7 @@ G5 — live event transfer acknowledgments, offline/reconnect replay, event tamp
 G6 — publication/release rights, research claims limited to observed receipts, GitHub PR approvals.
 
 All device, laboratory and financial savings gates presently **NOT_TESTED** in XRZ. No root or signing is claimed in this repository until independently verified.
+
+## Separate research lineage
+
+The XRZ nonhazardous mock laboratory protocol is **not** the Antigence Clean Room research lane. No Antigence detector, dataset, benchmark, model, Merkle root or private evidence is part of the XRZ MVP by default. The accidentally staged Antigence XRZ PR #2 was withdrawn, not merged. See `governance/PROJECT_BOUNDARY_XRZ.md`.
