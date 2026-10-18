@@ -40,3 +40,6 @@ Higher-level roots are **new commitments to typed envelopes**, not aliases for c
 **Known gaps:** two-host/cross-language verification, full formal consistency proof, actual Copilot model/tool trace, live Samsung device inference, lab approval and signatures are NOT_TESTED. Publication DOI/preprint completeness remains unresolved.
 
 NEXT_ACTION: obtain a real Copilot review or task receipt, preserve its exact references and independently validate a successor checkpoint; separate human approval still required.
+## Review breakpoints and successor contract
+
+GitHub PR #1 now has separate original review occurrences from **Codex** and **GitHub Copilot** on predecessor commit `e20e03f5d4a3044b856757b2acd25a509ad09d6f`. Codex supplied four custody-verifier findings; Copilot supplied four findings including missing typed events and citation/receipt edges. The original comments and v1 contracts are preserved. `contracts/AGENT_TURN.v2.schema.json` requires `event_kind`; `contracts/FCO_FCG_v2.json` extends the canonical declared edge vocabulary; `evidence/synthetic_agent_turn_receipt_v2.json` is a separate synthetic successor root linking the original synthetic v1 root. These are *not* real Copilot task input/output leaves or production attestation. Rerun GitHub CI and record a human decision before admitting changes.
